@@ -1,5 +1,7 @@
 # AgentSpace
 
+![A workspace for agents. A lime agent marker sits inside an isometric workspace.](assets/readme-hero.png)
+
 AgentSpace is an embeddable .NET 10 workspace for agents on Windows and Linux. A workspace belongs to one tenant and one agent. It provides physical file storage, Markdown and skill discovery, short-term memory, durable MAGICore memory, a JSON document database, and a restricted script interpreter.
 
 ## Build and run
