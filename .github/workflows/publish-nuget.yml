@@ -51,7 +51,7 @@ jobs:
             src/AgentSpace.MagiCore/AgentSpace.MagiCore.csproj
           do
             dotnet pack "$project" --configuration Release --output artifacts \
-              -p:PackageVersion="$PACKAGE_VERSION" \
+              -p:AgentSpacePackageVersion="$PACKAGE_VERSION" \
               -p:ContinuousIntegrationBuild=true
           done
 

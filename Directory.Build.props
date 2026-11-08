@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup Condition="'$(MSBuildProjectName)' != 'MagiCore'">
+    <PackageVersion Condition="'$(AgentSpacePackageVersion)' != ''">$(AgentSpacePackageVersion)</PackageVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ShouldUnsetParentConfigurationAndPlatform>false</ShouldUnsetParentConfigurationAndPlatform>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
