@@ -4,7 +4,15 @@
 
 AgentSpace is an embeddable .NET 10 workspace for agents on Windows and Linux. A workspace belongs to one tenant and one agent. It provides physical file storage, Markdown and skill discovery, short-term memory, durable MAGICore memory, a JSON document database, and a restricted script interpreter.
 
-## Build and run
+## Install
+
+```sh
+dotnet add package AgentSpace.SDK
+```
+
+The package includes the workspace host, policies, storage, and the MAGICore adapter. Register `MagiCoreMemoryProvider` to enable long-term memory. It uses local embeddings and needs no hosted model or database.
+
+## Build from source
 
 ```sh
 git submodule update --init --recursive
@@ -12,8 +20,6 @@ dotnet build AgentSpace.slnx
 dotnet run --project examples/AgentSpace.Example
 dotnet run --project tests/AgentSpace.Tests
 ```
-
-Reference `AgentSpace.Infrastructure` for the host and built-in runtime. Reference `AgentSpace.MagiCore` and register `MagiCoreMemoryProvider` to enable long-term memory. The core projects use the .NET base class library and Windows or Linux filesystem primitives. The MAGICore project reference brings the upstream project's .NET package dependencies. It uses local embeddings and needs no hosted model or database.
 
 ## Configure access in the host
 

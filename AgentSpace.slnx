@@ -3,6 +3,7 @@
     <Project Path="examples/AgentSpace.Example/AgentSpace.Example.csproj" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/AgentSpace/AgentSpace.csproj" />
     <Project Path="src/AgentSpace.Application/AgentSpace.Application.csproj" />
     <Project Path="src/AgentSpace.Domain/AgentSpace.Domain.csproj" />
     <Project Path="src/AgentSpace.Infrastructure/AgentSpace.Infrastructure.csproj" />

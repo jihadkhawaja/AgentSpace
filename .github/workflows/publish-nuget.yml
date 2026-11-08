@@ -1,4 +1,4 @@
-name: Publish NuGet packages
+name: Publish AgentSpace SDK
 
 on:
   release:
@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      packages: write
 
     steps:
       - name: Check out the release
@@ -41,19 +42,17 @@ jobs:
           fi
           echo "PACKAGE_VERSION=$version" >> "$GITHUB_ENV"
 
-      - name: Pack AgentSpace libraries
+      - name: Pack AgentSpace.SDK
         run: |
-          mkdir -p artifacts
-          for project in \
-            src/AgentSpace.Domain/AgentSpace.Domain.csproj \
-            src/AgentSpace.Application/AgentSpace.Application.csproj \
-            src/AgentSpace.Infrastructure/AgentSpace.Infrastructure.csproj \
-            src/AgentSpace.MagiCore/AgentSpace.MagiCore.csproj
-          do
-            dotnet pack "$project" --configuration Release --output artifacts \
-              -p:AgentSpacePackageVersion="$PACKAGE_VERSION" \
-              -p:ContinuousIntegrationBuild=true
-          done
+          dotnet pack src/AgentSpace/AgentSpace.csproj --configuration Release --output artifacts \
+            -p:AgentSpacePackageVersion="$PACKAGE_VERSION" \
+            -p:ContinuousIntegrationBuild=true
+          packages=(artifacts/*.nupkg)
+          if [[ ${#packages[@]} -ne 1 || ! -f "${packages[0]}" || "${packages[0]}" != artifacts/AgentSpace.SDK.*.nupkg ]]; then
+            echo "Expected one AgentSpace.SDK package." >&2
+            exit 1
+          fi
+          echo "PACKAGE_PATH=${packages[0]}" >> "$GITHUB_ENV"
 
       - name: Authenticate with NuGet Trusted Publishing
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
@@ -61,13 +60,20 @@ jobs:
         with:
           user: jihadkhawaja
 
-      - name: Push packages to NuGet
+      - name: Push to NuGet.org
         env:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: |
-          for package in artifacts/*.nupkg; do
-            dotnet nuget push "$package" \
-              --api-key "$NUGET_API_KEY" \
-              --source https://api.nuget.org/v3/index.json \
-              --skip-duplicate
-          done
+          dotnet nuget push "$PACKAGE_PATH" \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+      - name: Push to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          dotnet nuget add source "https://nuget.pkg.github.com/$GITHUB_REPOSITORY_OWNER/index.json" \
+            --name github --username "$GITHUB_ACTOR" --password "$GITHUB_TOKEN" \
+            --store-password-in-clear-text
+          dotnet nuget push "$PACKAGE_PATH" --source github --api-key "$GITHUB_TOKEN" --skip-duplicate
