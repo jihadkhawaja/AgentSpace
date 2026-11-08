@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/examples/">
+    <Project Path="examples/AgentSpace.Example/AgentSpace.Example.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/AgentSpace.Application/AgentSpace.Application.csproj" />
+    <Project Path="src/AgentSpace.Domain/AgentSpace.Domain.csproj" />
+    <Project Path="src/AgentSpace.Infrastructure/AgentSpace.Infrastructure.csproj" />
+    <Project Path="src/AgentSpace.MagiCore/AgentSpace.MagiCore.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AgentSpace.Tests/AgentSpace.Tests.csproj" />
+  </Folder>
+</Solution>

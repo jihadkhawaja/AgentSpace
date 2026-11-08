@@ -1,0 +1,3 @@
+[submodule "external/MAGICore"]
+	path = external/MAGICore
+	url = https://github.com/jihadkhawaja/MAGICore.git
