@@ -1,17 +1,5 @@
 namespace AgentSpace;
 
-public sealed record WorkspaceIdentity
-{
-    public WorkspaceIdentity(string tenant, string agent)
-    {
-        Tenant = WorkspaceNames.Identifier(tenant);
-        Agent = WorkspaceNames.Identifier(agent);
-    }
-
-    public string Tenant { get; }
-    public string Agent { get; }
-}
-
 public static class WorkspaceNames
 {
     public static string Identifier(string value)
@@ -45,7 +33,3 @@ public static class WorkspaceNames
         return value;
     }
 }
-
-public sealed class WorkspaceAccessException(string message) : UnauthorizedAccessException(message);
-public sealed class WorkspaceConflictException(string message) : InvalidOperationException(message);
-public sealed class WorkspaceLimitException(string message) : InvalidOperationException(message);
