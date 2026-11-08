@@ -1,0 +1,73 @@
+name: Publish NuGet packages
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nuget-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out the release
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          submodules: recursive
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Validate release version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          version="${RELEASE_TAG#v}"
+          if [[ ! "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+            echo "Release tag '$RELEASE_TAG' must be a semantic version, optionally prefixed with v." >&2
+            exit 1
+          fi
+          echo "PACKAGE_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Pack AgentSpace libraries
+        run: |
+          mkdir -p artifacts
+          for project in \
+            src/AgentSpace.Domain/AgentSpace.Domain.csproj \
+            src/AgentSpace.Application/AgentSpace.Application.csproj \
+            src/AgentSpace.Infrastructure/AgentSpace.Infrastructure.csproj \
+            src/AgentSpace.MagiCore/AgentSpace.MagiCore.csproj
+          do
+            dotnet pack "$project" --configuration Release --output artifacts \
+              -p:PackageVersion="$PACKAGE_VERSION" \
+              -p:ContinuousIntegrationBuild=true
+          done
+
+      - name: Authenticate with NuGet Trusted Publishing
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        id: nuget-login
+        with:
+          user: jihadkhawaja
+
+      - name: Push packages to NuGet
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: |
+          for package in artifacts/*.nupkg; do
+            dotnet nuget push "$package" \
+              --api-key "$NUGET_API_KEY" \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done
